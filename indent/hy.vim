@@ -39,7 +39,7 @@ setlocal lispwords+=loop,for*,while
 
 " hyDefine
 setlocal lispwords+=defmacro/g!,defmain,defn-alias,defun-alias,defmulti,defnc
-setlocal lispwords+=defclass,defmacro,defreader,defn,defun
+setlocal lispwords+=defclass,defmacro,deftag,defn,defun
 
 " hyMacro
 setlocal lispwords+=,->,->>,ap-dotimes,ap-each,ap-each-while,ap-filter,ap-first
@@ -73,11 +73,22 @@ setlocal lispwords+=unquote,unquote-splicing
 setlocal lispwords+=with*,with-decorator
 setlocal lispwords+=yield,yield-from,zero?,\|=,~,\|
 
+function! s:UsingPython3()
+  if has('python3')
+    return 1
+  endif
+    return 0
+endfunction
+
+let s:using_python3 = s:UsingPython3()
+let s:python_until_eof = s:using_python3 ? "python3 << EOF" : "python << EOF"
+let s:python_command = s:using_python3 ? "py3 " : "py "
+
 let s:indent_path = fnamemodify(expand("<sfile>"), ":p:h")
-python import sys
-exe 'python sys.path.insert(0, "' . escape(s:indent_path, '\"') . '")'
-python import hy
-python import hy_indent
+exec s:python_command 'import sys'
+exec s:python_command 'sys.path.insert(0, "' . escape(s:indent_path, '\"') . '")'
+exec s:python_command 'import hy'
+exec s:python_command 'import hy_indent'
 
 function! HyIndent(lnum)
 	return pyeval('hy_indent.do_indent(' . a:lnum . ')')

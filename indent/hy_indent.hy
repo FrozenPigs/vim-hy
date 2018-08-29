@@ -1,11 +1,12 @@
 (import vim)
 
-(defn vimfns (object))
-(defreader v [name]
-  `(do
-     (unless (hasattr vimfns ~name)
-       (setattr vimfns ~name (vim.Function ~name)))
-     (getattr vimfns ~name)))
+(defn vimfns [object]) 
+
+(deftag v [name]
+    `(do
+       (unless (hasattr vimfns ~name)
+         (setattr vimfns ~name (vim.Function ~name)))
+       (getattr vimfns ~name)))
 
 (defn syn-id-attr [id attr]
   (#v"synIDattr" id attr))
@@ -56,14 +57,16 @@
 (defn do-indent [lnum]
   (setv lnum (int lnum))
   (setv col (#v"col" "."))
-  (setv align (-> (filter (fn [(, pos _)]
+  ;(setv align (-> (filter (fn [(, pos _)]
+  (setv align (-> (filter (fn [pos]
                             (and (not (= (+ (first pos) (second pos)) 0))
                               (< (first pos) lnum)))
                           [(, (paren-pair "{" "}" lnum col) 'braces)
                            (, (paren-pair "[" "]" lnum col) 'brackets)
                            (, (paren-pair "(" ")" lnum col) 'parens)])
                 (sorted :reverse True
-                        :key (fn [(, pos _)]
+                        ;:key (fn [(, pos _)]
+                        :key (fn [pos]
                                (, (- (first pos) lnum)
                                   (second pos))))
                 first))
@@ -77,3 +80,4 @@
          (inc (+ (second (first align)) (len w)))))]
     [True
      (second (first align))]))
+
